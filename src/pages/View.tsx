@@ -1,5 +1,8 @@
 import { useEffect, useMemo } from 'react'
+import type { CSSProperties } from 'react'
 import { decodeCard } from '../lib/encode'
+import { cardDims } from '../lib/types'
+import { Card } from '../components/Card'
 import { CardScaler } from '../components/CardScaler'
 
 export function View({ encoded }: { encoded: string }) {
@@ -23,11 +26,28 @@ export function View({ encoded }: { encoded: string }) {
     )
   }
 
+  const { w, h } = cardDims(card.orientation)
+
   return (
     <div className="page view">
       <div className="view-card">
         <CardScaler data={card} maxScale={1.4} />
       </div>
+      {/* Print-only copy: the on-screen card is scaled by a ResizeObserver,
+          which does not re-measure for the print layout, so printing renders
+          this second copy at a scale chosen in CSS from the paper size. */}
+      <div
+        className={`print-card print-${card.orientation}`}
+        style={{ '--card-w': w, '--card-h': h } as CSSProperties}
+        aria-hidden="true"
+      >
+        <div className="print-scale-box">
+          <div className="print-scale-inner" style={{ width: w, height: h }}>
+            <Card data={card} />
+          </div>
+        </div>
+      </div>
+      {card.orientation === 'landscape' && <style>{'@page { size: landscape; }'}</style>}
     </div>
   )
 }

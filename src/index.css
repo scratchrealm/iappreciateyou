@@ -392,3 +392,76 @@ button {
   max-width: 420px;
   text-align: center;
 }
+
+/* ---------- Print ---------- */
+
+@page {
+  margin: 0.5in;
+}
+
+.print-card {
+  display: none;
+}
+
+@media print {
+  html,
+  body,
+  #root,
+  .page {
+    min-height: 0;
+  }
+
+  body,
+  .view {
+    background: #fff;
+  }
+
+  .view {
+    padding: 0;
+  }
+
+  .view-card {
+    display: none;
+  }
+
+  /* Fixed to the page box so the card centers on a single printed page
+     without 100vh rounding spilling onto a blank second page. */
+  .print-card {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    /* Card and paper orientation differ: shrink to fit across letter/A4. */
+    --print-scale: 0.85;
+  }
+
+  .print-scale-box {
+    width: calc(var(--card-w) * var(--print-scale) * 1px);
+    height: calc(var(--card-h) * var(--print-scale) * 1px);
+  }
+
+  .print-scale-inner {
+    transform: scale(var(--print-scale));
+    transform-origin: top left;
+  }
+
+  .card {
+    box-shadow: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* Card and paper orientation match: card fills most of the page. */
+@media print and (orientation: landscape) {
+  .print-card.print-landscape {
+    --print-scale: 1.15;
+  }
+}
+
+@media print and (orientation: portrait) {
+  .print-card.print-portrait {
+    --print-scale: 1.15;
+  }
+}
