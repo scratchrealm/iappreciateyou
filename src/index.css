@@ -432,13 +432,18 @@ button {
     inset: 0;
     align-items: center;
     justify-content: center;
-    /* Card and paper orientation differ: shrink to fit across letter/A4. */
-    --print-scale: 0.85;
+    /* 0.84 puts the card's 800px long side at 7in (800px = 8.33in at
+       96dpi), so it prints as a 7in x 4.9in card — standard 5x7 greeting
+       card territory, fits an A7 envelope and any paper orientation. */
+    --print-scale: 0.84;
   }
 
   .print-scale-box {
     width: calc(var(--card-w) * var(--print-scale) * 1px);
     height: calc(var(--card-h) * var(--print-scale) * 1px);
+    /* Cut guide: sits just outside the card edge and is trimmed away. */
+    outline: 1px dashed #c9c3b9;
+    outline-offset: 3px;
   }
 
   .print-scale-inner {
@@ -450,18 +455,5 @@ button {
     box-shadow: none;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-  }
-}
-
-/* Card and paper orientation match: card fills most of the page. */
-@media print and (orientation: landscape) {
-  .print-card.print-landscape {
-    --print-scale: 1.15;
-  }
-}
-
-@media print and (orientation: portrait) {
-  .print-card.print-portrait {
-    --print-scale: 1.15;
   }
 }

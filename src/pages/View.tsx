@@ -35,9 +35,9 @@ export function View({ encoded }: { encoded: string }) {
       </div>
       {/* Print-only copy: the on-screen card is scaled by a ResizeObserver,
           which does not re-measure for the print layout, so printing renders
-          this second copy at a scale chosen in CSS from the paper size. */}
+          this second copy at a fixed mailable size (see the print CSS). */}
       <div
-        className={`print-card print-${card.orientation}`}
+        className="print-card"
         style={{ '--card-w': w, '--card-h': h } as CSSProperties}
         aria-hidden="true"
       >
@@ -47,7 +47,6 @@ export function View({ encoded }: { encoded: string }) {
           </div>
         </div>
       </div>
-      {card.orientation === 'landscape' && <style>{'@page { size: landscape; }'}</style>}
     </div>
   )
 }
