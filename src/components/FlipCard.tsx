@@ -38,24 +38,24 @@ export function FlipCard({
   )
 }
 
-// A card with an arrow arcing over the top of it: "turn this over".
+// Deliberately a plain rotate glyph — anything more detailed turns to mush at
+// this size, and the pill's wording already says what the gesture is.
 export function FlipIcon() {
   return (
     <svg
       className="flip-icon"
       viewBox="0 0 24 24"
-      width="19"
-      height="19"
+      width="17"
+      height="17"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.7"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <rect x="4.2" y="10.6" width="15.6" height="9.6" rx="1.8" />
-      <path d="M6.4 8.4 A 6.6 5.4 0 0 1 17.6 8.4" />
-      <path d="M15 6.9 L 17.9 8.6 L 16.4 11.4" />
+      <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
     </svg>
   )
 }

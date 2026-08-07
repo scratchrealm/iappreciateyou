@@ -476,6 +476,7 @@ button {
   /* A definite height (not just min-height) so the card area below can shrink
      to whatever is left after the turn-over hint. */
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -557,6 +558,10 @@ button {
   .view {
     display: block;
     padding: 0;
+    /* Undo the on-screen viewport box, which would otherwise clip the sheets
+       below to a single page. */
+    height: auto;
+    overflow: visible;
   }
 
   .view-card,

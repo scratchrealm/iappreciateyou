@@ -48,7 +48,7 @@ export function encodeCard(card: CardData): string {
     s: SIZE_TO_CODE[card.size],
     a: ALIGN_TO_CODE[card.align],
   }
-  if (card.back) payload.k = card.back
+  if (card.back.trim()) payload.k = card.back
   const compressed = deflateSync(strToU8(JSON.stringify(payload)), { level: 9 })
   return toBase64Url(compressed)
 }

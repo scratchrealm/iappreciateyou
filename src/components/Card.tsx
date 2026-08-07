@@ -111,7 +111,9 @@ export function Card({
 // A turned-up bottom-right corner: a shadow cast onto the card, the flap
 // itself shaded like the reverse of the paper, and a crease along the fold.
 function CurledCorner({ w, h, paper }: { w: number; h: number; paper: string }) {
-  const uid = useId()
+  // useId's separators are not URL-fragment friendly; the alphanumerics it
+  // leaves behind are still unique per instance.
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, '')
   const gradId = `curl-grad-${uid}`
   const blurId = `curl-blur-${uid}`
   const s = CURL_SIZE
@@ -135,7 +137,7 @@ function CurledCorner({ w, h, paper }: { w: number; h: number; paper: string }) 
           gradientUnits="userSpaceOnUse"
         >
           <stop offset="0" stopColor={darken(paper, 0.03)} />
-          <stop offset="1" stopColor={darken(paper, 0.32)} />
+          <stop offset="1" stopColor={darken(paper, 0.24)} />
         </linearGradient>
         <filter id={blurId} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="5" />

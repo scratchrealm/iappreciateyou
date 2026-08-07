@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { CardData, CardSide, Orientation, TextAlign, TextSize } from '../lib/types'
 import { hasBack } from '../lib/types'
@@ -51,6 +51,14 @@ export function Compose({ templateId, orientation }: { templateId: string; orien
   // or to get back to the front while writing an empty one.
   const canFlipPreview = twoSided || side === 'back'
 
+  // Picking a side from the tabs means you are about to write on it. Flipping
+  // the preview does not, so it deliberately does not grab focus.
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const chooseSide = (s: CardSide) => {
+    setSide(s)
+    textareaRef.current?.focus()
+  }
+
   const copyLink = async () => {
     if (!url) return
     try {
@@ -75,7 +83,7 @@ export function Compose({ templateId, orientation }: { templateId: string; orien
     sideHint = (
       <>
         Want to say more?{' '}
-        <button className="linkish" onClick={() => setSide('back')}>
+        <button className="linkish" onClick={() => chooseSide('back')}>
           Add a note on the back
         </button>
         .
@@ -114,7 +122,7 @@ export function Compose({ templateId, orientation }: { templateId: string; orien
                 <button
                   key={s}
                   className={s === side ? 'seg-btn active' : 'seg-btn'}
-                  onClick={() => setSide(s)}
+                  onClick={() => chooseSide(s)}
                 >
                   {s === 'front' ? 'Front' : 'Back'}
                   {s === 'back' && twoSided && <span className="side-dot" aria-hidden="true" />}
@@ -124,6 +132,7 @@ export function Compose({ templateId, orientation }: { templateId: string; orien
           </div>
           <textarea
             id="message"
+            ref={textareaRef}
             value={side === 'front' ? message : back}
             maxLength={MAX_MESSAGE_LENGTH}
             placeholder={
