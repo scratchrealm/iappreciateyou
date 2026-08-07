@@ -8,6 +8,8 @@ interface Payload {
   t: string
   o: 'l' | 'p'
   m: string
+  // Back-side text. Omitted entirely for one-sided cards so their links stay short.
+  k?: string
   f: string
   c: string
   b: string
@@ -46,6 +48,7 @@ export function encodeCard(card: CardData): string {
     s: SIZE_TO_CODE[card.size],
     a: ALIGN_TO_CODE[card.align],
   }
+  if (card.back) payload.k = card.back
   const compressed = deflateSync(strToU8(JSON.stringify(payload)), { level: 9 })
   return toBase64Url(compressed)
 }
@@ -59,6 +62,7 @@ export function decodeCard(encoded: string): CardData | null {
       template: TEMPLATES.some((t) => t.id === raw.t) ? raw.t : TEMPLATES[0].id,
       orientation,
       message: raw.m.slice(0, MAX_MESSAGE_LENGTH),
+      back: typeof raw.k === 'string' ? raw.k.slice(0, MAX_MESSAGE_LENGTH) : '',
       font: FONTS.some((f) => f.id === raw.f) ? raw.f : FONTS[0].id,
       color: INK_COLORS.some((c) => c.id === raw.c) ? raw.c : INK_COLORS[0].id,
       background: PAPER_COLORS.some((c) => c.id === raw.b) ? raw.b : PAPER_COLORS[0].id,

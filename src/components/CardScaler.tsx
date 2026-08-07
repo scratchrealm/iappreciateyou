@@ -1,14 +1,22 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import type { CardData } from '../lib/types'
+import type { ReactNode } from 'react'
+import type { Orientation } from '../lib/types'
 import { cardDims } from '../lib/types'
-import { Card } from './Card'
 
-// Displays a Card scaled to fit its container while keeping the card's
-// internal layout (and therefore the fitted text) exactly the same.
-export function CardScaler({ data, maxScale = 1 }: { data: CardData; maxScale?: number }) {
+// Displays card-sized content scaled to fit its container while keeping the
+// card's internal layout (and therefore the fitted text) exactly the same.
+export function CardScaler({
+  orientation,
+  maxScale = 1,
+  children,
+}: {
+  orientation: Orientation
+  maxScale?: number
+  children: ReactNode
+}) {
   const outerRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(0)
-  const { w, h } = cardDims(data.orientation)
+  const { w, h } = cardDims(orientation)
 
   useLayoutEffect(() => {
     const outer = outerRef.current
@@ -29,7 +37,7 @@ export function CardScaler({ data, maxScale = 1 }: { data: CardData; maxScale?: 
       {scale > 0 && (
         <div className="card-scaler-box" style={{ width: w * scale, height: h * scale }}>
           <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: w, height: h }}>
-            <Card data={data} />
+            {children}
           </div>
         </div>
       )}

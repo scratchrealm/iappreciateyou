@@ -57,6 +57,17 @@ export function paperById(id: string): ColorOption {
   return PAPER_COLORS.find((c) => c.id === id) ?? PAPER_COLORS[0]
 }
 
+// Mixes a #rrggbb color toward black. Used to shade the folded corner so it
+// reads as the underside of whichever paper the sender picked.
+export function darken(hex: string, amount: number): string {
+  const n = parseInt(hex.slice(1), 16)
+  const f = 1 - amount
+  const r = Math.round(((n >> 16) & 255) * f)
+  const g = Math.round(((n >> 8) & 255) * f)
+  const b = Math.round((n & 255) * f)
+  return `rgb(${r}, ${g}, ${b})`
+}
+
 export const MAX_MESSAGE_LENGTH = 1000
 
 // Maximum font size (in card units) for each text size preference.

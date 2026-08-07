@@ -67,12 +67,60 @@ button {
   overflow-wrap: normal;
 }
 
+.card-curl {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Grows out of the fixed bottom-right corner on hover, so the corner looks
+     like it lifts further when you are about to turn the card. */
+  transform-origin: 100% 100%;
+  transition: transform 0.25s ease;
+}
+
 .card-scaler-outer {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* ---------- Flip ---------- */
+
+.flip-card {
+  position: relative;
+  /* In card units, so the depth reads the same at every display size. */
+  perspective: 3600px;
+}
+
+.flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.75s cubic-bezier(0.22, 0.68, 0.24, 1);
+}
+
+.flip-face {
+  position: absolute;
+  inset: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.flippable {
+  cursor: pointer;
+}
+
+.flippable:hover .card-curl {
+  transform: scale(1.22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-inner,
+  .card-curl {
+    transition: none;
+  }
 }
 
 /* ---------- Home ---------- */
@@ -245,6 +293,49 @@ button {
   border-color: transparent;
 }
 
+.side-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.side-tabs .seg-btn {
+  padding: 5px 14px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Marks the Back tab once something has been written there. */
+.side-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a14f2f;
+}
+
+.side-tabs .seg-btn.active .side-dot {
+  background: #e3a184;
+}
+
+.side-hint {
+  font-size: 0.82rem;
+  color: #8a8378;
+  margin: 6px 0 0;
+  min-height: 1.2em;
+}
+
+.linkish {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: #a14f2f;
+  text-decoration: underline;
+}
+
 .font-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -376,15 +467,62 @@ button {
 
 .view {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 16px;
   background: #ece9e3;
   padding: 24px;
+  /* A definite height (not just min-height) so the card area below can shrink
+     to whatever is left after the turn-over hint. */
+  height: 100vh;
+  overflow: hidden;
 }
 
 .view-card {
   width: 100%;
-  height: calc(100vh - 48px);
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flip-stage {
+  width: 100%;
+  height: 100%;
+}
+
+/* A turning card projects larger than a flat one, so a two-sided card leaves
+   itself room to swing without being clipped by the page edge. */
+.flip-stage.two-sided {
+  width: 96%;
+  height: 90%;
+}
+
+.flip-hint {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid #d6d0c6;
+  border-radius: 999px;
+  background: #fff;
+  color: #57524b;
+  padding: 9px 18px;
+  font-size: 0.92rem;
+  box-shadow: 0 1px 5px rgba(60, 50, 40, 0.08);
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.flip-hint:hover {
+  color: #a14f2f;
+  border-color: #c58a70;
+  transform: translateY(-1px);
+}
+
+.flip-icon {
+  flex: 0 0 auto;
 }
 
 .view-error {
@@ -399,7 +537,7 @@ button {
   margin: 0.5in;
 }
 
-.print-card {
+.print-area {
   display: none;
 }
 
@@ -417,25 +555,38 @@ button {
   }
 
   .view {
+    display: block;
     padding: 0;
   }
 
-  .view-card {
+  .view-card,
+  .flip-hint {
     display: none;
   }
 
-  /* Fixed to the page box so the card centers on a single printed page
-     without 100vh rounding spilling onto a blank second page. */
-  .print-card {
-    display: flex;
-    position: fixed;
-    inset: 0;
-    align-items: center;
-    justify-content: center;
+  .print-area {
+    display: block;
     /* 0.84 puts the card's 800px long side at 7in (800px = 8.33in at
        96dpi), so it prints as a 7in x 4.9in card — standard 5x7 greeting
        card territory, fits an A7 envelope and any paper orientation. */
     --print-scale: 0.84;
+  }
+
+  /* One sheet per side. The height is a fixed length rather than 100vh so
+     rounding cannot spill a sheet onto a blank extra page; it stays under the
+     10in content box of a 0.5in-margin Letter page (and A4's 10.69in). */
+  .print-sheet {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 9.3in;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .print-sheet:last-child {
+    page-break-after: auto;
+    break-after: auto;
   }
 
   .print-scale-box {

@@ -1,15 +1,20 @@
 import { useMemo, useState } from 'react'
-import type { CardData, Orientation, TextAlign, TextSize } from '../lib/types'
+import type { ReactNode } from 'react'
+import type { CardData, CardSide, Orientation, TextAlign, TextSize } from '../lib/types'
+import { hasBack } from '../lib/types'
 import { FONTS, INK_COLORS, PAPER_COLORS, MAX_MESSAGE_LENGTH } from '../lib/options'
 import { templateById } from '../lib/templates'
 import { cardUrl } from '../lib/encode'
 import { CardScaler } from '../components/CardScaler'
+import { FlipCard } from '../components/FlipCard'
 
 const DEFAULT_MESSAGE = ''
 
 export function Compose({ templateId, orientation }: { templateId: string; orientation: Orientation }) {
   const template = templateById(templateId)
   const [message, setMessage] = useState(DEFAULT_MESSAGE)
+  const [back, setBack] = useState('')
+  const [side, setSide] = useState<CardSide>('front')
   const [font, setFont] = useState(FONTS[0].id)
   const [color, setColor] = useState(INK_COLORS[0].id)
   const [background, setBackground] = useState(PAPER_COLORS[0].id)
@@ -21,6 +26,7 @@ export function Compose({ templateId, orientation }: { templateId: string; orien
     template: template.id,
     orientation,
     message,
+    back,
     font,
     color,
     background,
@@ -28,16 +34,22 @@ export function Compose({ templateId, orientation }: { templateId: string; orien
     align,
   }
 
-  const url = useMemo(() => (message.trim() ? cardUrl(card) : ''), [
+  const twoSided = hasBack(card)
+  const url = useMemo(() => (message.trim() || back.trim() ? cardUrl(card) : ''), [
     template.id,
     orientation,
     message,
+    back,
     font,
     color,
     background,
     size,
     align,
   ])
+
+  // Turning the preview over is only meaningful once there is a back to see,
+  // or to get back to the front while writing an empty one.
+  const canFlipPreview = twoSided || side === 'back'
 
   const copyLink = async () => {
     if (!url) return
@@ -48,6 +60,27 @@ export function Compose({ templateId, orientation }: { templateId: string; orien
     } catch {
       // Clipboard can be unavailable; the user can still copy from the input.
     }
+  }
+
+  let sideHint: ReactNode
+  if (side === 'back') {
+    sideHint = twoSided
+      ? 'Whoever opens your card will see a turned-up corner and a nudge to turn it over.'
+      : 'Leave this blank and your card stays one-sided.'
+  } else if (twoSided && !message.trim()) {
+    sideHint = 'A blank front is fine — it becomes a plain cover for the note on the back.'
+  } else if (twoSided) {
+    sideHint = 'Your card has two sides. Recipients start on the front.'
+  } else {
+    sideHint = (
+      <>
+        Want to say more?{' '}
+        <button className="linkish" onClick={() => setSide('back')}>
+          Add a note on the back
+        </button>
+        .
+      </>
+    )
   }
 
   return (
@@ -62,23 +95,47 @@ export function Compose({ templateId, orientation }: { templateId: string; orien
       </header>
 
       <div className="compose-layout">
-        <div className="compose-preview">
-          <CardScaler data={card} />
+        <div
+          className={canFlipPreview ? 'compose-preview flippable' : 'compose-preview'}
+          onClick={canFlipPreview ? () => setSide(side === 'front' ? 'back' : 'front') : undefined}
+        >
+          <CardScaler orientation={orientation}>
+            <FlipCard data={card} flipped={side === 'back'} twoSided={twoSided} />
+          </CardScaler>
         </div>
 
         <div className="compose-controls">
-          <label className="control-label" htmlFor="message">
-            Your message
-          </label>
+          <div className="side-row">
+            <label className="control-label" htmlFor="message">
+              Your message
+            </label>
+            <div className="segmented side-tabs">
+              {(['front', 'back'] as const).map((s) => (
+                <button
+                  key={s}
+                  className={s === side ? 'seg-btn active' : 'seg-btn'}
+                  onClick={() => setSide(s)}
+                >
+                  {s === 'front' ? 'Front' : 'Back'}
+                  {s === 'back' && twoSided && <span className="side-dot" aria-hidden="true" />}
+                </button>
+              ))}
+            </div>
+          </div>
           <textarea
             id="message"
-            value={message}
+            value={side === 'front' ? message : back}
             maxLength={MAX_MESSAGE_LENGTH}
-            placeholder="Write your note here. It will fit itself to the card."
-            onChange={(e) => setMessage(e.target.value)}
+            placeholder={
+              side === 'front'
+                ? 'Write your note here. It will fit itself to the card.'
+                : 'Write the back of the card here.'
+            }
+            onChange={(e) => (side === 'front' ? setMessage(e.target.value) : setBack(e.target.value))}
             rows={5}
             autoFocus
           />
+          <p className="side-hint">{sideHint}</p>
 
           <span className="control-label">Font</span>
           <div className="font-grid">
@@ -155,7 +212,8 @@ export function Compose({ templateId, orientation }: { templateId: string; orien
                 </div>
                 <p className="link-hint">
                   Send this link by email, text, or however you like. Whoever opens it
-                  will see your card, exactly as it looks here.
+                  will see your card, exactly as it looks here
+                  {twoSided ? ', and can turn it over to read the back.' : '.'}
                 </p>
               </>
             ) : (
