@@ -7,7 +7,8 @@ import { templateById } from '../lib/templates'
 import { cardUrl } from '../lib/encode'
 import { CardScaler } from '../components/CardScaler'
 import { FlipCard } from '../components/FlipCard'
-import { PrintArea, PrintButton } from '../components/PrintArea'
+import { PrintArea, PrintButton, PrintSizeButtons } from '../components/PrintArea'
+import { DEFAULT_PRINT_SIZE, printSizeById } from '../lib/printSizes'
 
 const DEFAULT_MESSAGE = ''
 
@@ -22,6 +23,7 @@ export function Compose({ templateId, orientation }: { templateId: string; orien
   const [size, setSize] = useState<TextSize>('medium')
   const [align, setAlign] = useState<TextAlign>('center')
   const [copied, setCopied] = useState(false)
+  const [printSize, setPrintSize] = useState(DEFAULT_PRINT_SIZE)
 
   const card: CardData = {
     template: template.id,
@@ -234,21 +236,27 @@ export function Compose({ templateId, orientation }: { templateId: string; orien
           {url && (
             <div className="link-section">
               <span className="control-label">Or print it</span>
+              <PrintSizeButtons
+                value={printSize}
+                onChange={setPrintSize}
+                orientation={orientation}
+              />
               <div className="link-actions">
                 <PrintButton className="secondary-btn" />
               </div>
               <p className="link-hint">
-                Prints at about 5 by 7 inches
-                {twoSided ? ', front and back on separate pages, ' : ', '}
-                with a dashed line to cut along. Your browser's print dialog can save it
-                as a PDF instead.
+                {printSizeById(printSize).note.charAt(0).toUpperCase() +
+                  printSizeById(printSize).note.slice(1)}
+                {twoSided ? '. Front and back print on separate pages, each' : '. It prints'}{' '}
+                with a dashed line to cut along, and your browser's print dialog can save
+                it as a PDF instead.
               </p>
             </div>
           )}
         </div>
       </div>
 
-      <PrintArea card={card} />
+      <PrintArea card={card} size={printSizeById(printSize)} />
     </div>
   )
 }

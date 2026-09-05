@@ -3,11 +3,13 @@ import { decodeCard } from '../lib/encode'
 import { hasBack } from '../lib/types'
 import { CardScaler } from '../components/CardScaler'
 import { FlipCard, FlipIcon } from '../components/FlipCard'
-import { PrintArea, PrintButton } from '../components/PrintArea'
+import { PrintArea, PrintButton, PrintSizeSelect } from '../components/PrintArea'
+import { DEFAULT_PRINT_SIZE, printSizeById } from '../lib/printSizes'
 
 export function View({ encoded }: { encoded: string }) {
   const card = useMemo(() => decodeCard(encoded), [encoded])
   const [flipped, setFlipped] = useState(false)
+  const [printSize, setPrintSize] = useState(DEFAULT_PRINT_SIZE)
 
   useEffect(() => {
     document.title = 'a card for you'
@@ -54,9 +56,14 @@ export function View({ encoded }: { encoded: string }) {
           </button>
         )}
         <PrintButton />
+        <PrintSizeSelect
+          value={printSize}
+          onChange={setPrintSize}
+          orientation={card.orientation}
+        />
       </div>
 
-      <PrintArea card={card} />
+      <PrintArea card={card} size={printSizeById(printSize)} />
     </div>
   )
 }

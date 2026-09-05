@@ -543,6 +543,47 @@ button {
   position: absolute;
   top: -30000px;
   left: -30000px;
+  /* Overridden inline with the scale for the chosen paper size: card units are
+     CSS pixels, so a 0.6 scale puts the 800px long edge at 5in. */
+  --print-scale: 0.6;
+}
+
+/* ---------- Print size chooser ---------- */
+
+.print-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #d6d0c6;
+  border-radius: 999px;
+  background: #fff;
+  color: #8a8378;
+  padding: 7px 8px 7px 16px;
+  font-size: 0.92rem;
+  box-shadow: 0 1px 5px rgba(60, 50, 40, 0.08);
+}
+
+.print-size select {
+  font: inherit;
+  color: #57524b;
+  border: none;
+  background: transparent;
+  padding: 2px 4px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.print-size select:focus-visible {
+  outline: 2px solid #c58a70;
+}
+
+.print-size-buttons {
+  margin-bottom: 4px;
+}
+
+.print-size-buttons .seg-btn {
+  font-size: 0.82rem;
+  padding: 7px 4px;
 }
 
 .view-actions {
@@ -620,11 +661,6 @@ button {
   .page > .print-area {
     position: static;
     display: block;
-    /* 0.84 puts the card's 800px long side at 7in (800px = 8.33in at
-       96dpi), so it prints as a 7in x 4.9in card - standard 5x7 greeting
-       card territory, big enough to hand to someone and small enough for an
-       A7 envelope, in either orientation. */
-    --print-scale: 0.84;
   }
 
   /* One sheet per side. The height is a fixed length rather than 100vh so
@@ -654,6 +690,10 @@ button {
   .print-scale-box {
     width: calc(var(--card-w) * var(--print-scale) * 1px);
     height: calc(var(--card-h) * var(--print-scale) * 1px);
+    /* The card inside is shrunk by a transform, which paints smaller but still
+       takes up its full height in layout. Without this, that overflow is what
+       the printer paginates on, and a tall card spills a blank second page. */
+    overflow: hidden;
     /* Cut guide: sits just outside the card edge and is trimmed away. */
     outline: 1px dashed #c9c3b9;
     outline-offset: 3px;

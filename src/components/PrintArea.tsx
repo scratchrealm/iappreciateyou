@@ -1,21 +1,29 @@
 import type { CSSProperties } from 'react'
-import type { CardData, CardSide } from '../lib/types'
+import type { CardData, CardSide, Orientation } from '../lib/types'
 import { cardDims, hasBack } from '../lib/types'
+import type { PrintSize } from '../lib/printSizes'
+import { PRINT_SIZES, printScale, printSizeLabel } from '../lib/printSizes'
 import { Card } from './Card'
 
 // A print-only copy of the card, used by both the sender (while composing) and
 // the recipient (while viewing). The on-screen card is scaled by a
 // ResizeObserver, which does not re-measure for the print layout, so printing
-// renders these copies at a fixed 5x7-ish size instead (see the print CSS).
+// renders these copies at the chosen paper size instead (see the print CSS).
 // A two-sided card prints as two pages, front then back.
-export function PrintArea({ card }: { card: CardData }) {
+export function PrintArea({ card, size }: { card: CardData; size: PrintSize }) {
   const { w, h } = cardDims(card.orientation)
   const twoSided = hasBack(card)
 
   return (
     <div
       className="print-area"
-      style={{ '--card-w': w, '--card-h': h } as CSSProperties}
+      style={
+        {
+          '--card-w': w,
+          '--card-h': h,
+          '--print-scale': printScale(size),
+        } as CSSProperties
+      }
       aria-hidden="true"
     >
       <PrintSheet card={card} side="front" label={twoSided ? 'front' : undefined} />
@@ -57,6 +65,55 @@ export function PrintButton({ className = 'print-btn' }: { className?: string })
       <PrinterIcon />
       Print or save as PDF
     </button>
+  )
+}
+
+// Compact size chooser, for sitting beside the print button on the view page.
+export function PrintSizeSelect({
+  value,
+  onChange,
+  orientation,
+}: {
+  value: string
+  onChange: (id: string) => void
+  orientation: Orientation
+}) {
+  return (
+    <label className="print-size">
+      <span>Size</span>
+      <select value={value} onChange={(e) => onChange(e.target.value)} aria-label="Print size">
+        {PRINT_SIZES.map((s) => (
+          <option key={s.id} value={s.id}>
+            {printSizeLabel(s, orientation)}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
+// The same choice as buttons, matching the other controls on the compose page.
+export function PrintSizeButtons({
+  value,
+  onChange,
+  orientation,
+}: {
+  value: string
+  onChange: (id: string) => void
+  orientation: Orientation
+}) {
+  return (
+    <div className="segmented print-size-buttons">
+      {PRINT_SIZES.map((s) => (
+        <button
+          key={s.id}
+          className={s.id === value ? 'seg-btn active' : 'seg-btn'}
+          onClick={() => onChange(s.id)}
+        >
+          {printSizeLabel(s, orientation)}
+        </button>
+      ))}
+    </div>
   )
 }
 
