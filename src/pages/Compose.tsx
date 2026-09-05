@@ -7,6 +7,7 @@ import { templateById } from '../lib/templates'
 import { cardUrl } from '../lib/encode'
 import { CardScaler } from '../components/CardScaler'
 import { FlipCard } from '../components/FlipCard'
+import { PrintArea, PrintButton } from '../components/PrintArea'
 
 const DEFAULT_MESSAGE = ''
 
@@ -229,8 +230,25 @@ export function Compose({ templateId, orientation }: { templateId: string; orien
               <p className="link-hint">Write a message above and your link will appear here.</p>
             )}
           </div>
+
+          {url && (
+            <div className="link-section">
+              <span className="control-label">Or print it</span>
+              <div className="link-actions">
+                <PrintButton className="secondary-btn" />
+              </div>
+              <p className="link-hint">
+                Prints at about 5 by 7 inches
+                {twoSided ? ', front and back on separate pages, ' : ', '}
+                with a dashed line to cut along. Your browser's print dialog can save it
+                as a PDF instead.
+              </p>
+            </div>
+          )}
         </div>
       </div>
+
+      <PrintArea card={card} />
     </div>
   )
 }

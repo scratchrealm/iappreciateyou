@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { CSSProperties } from 'react'
 import { decodeCard } from '../lib/encode'
-import { cardDims, hasBack } from '../lib/types'
-import { Card } from '../components/Card'
+import { hasBack } from '../lib/types'
 import { CardScaler } from '../components/CardScaler'
 import { FlipCard, FlipIcon } from '../components/FlipCard'
+import { PrintArea, PrintButton } from '../components/PrintArea'
 
 export function View({ encoded }: { encoded: string }) {
   const card = useMemo(() => decodeCard(encoded), [encoded])
@@ -28,7 +27,6 @@ export function View({ encoded }: { encoded: string }) {
     )
   }
 
-  const { w, h } = cardDims(card.orientation)
   const twoSided = hasBack(card)
 
   return (
@@ -44,43 +42,21 @@ export function View({ encoded }: { encoded: string }) {
         </div>
       </div>
 
-      {twoSided && (
-        <button
-          className="flip-hint"
-          onClick={() => setFlipped((f) => !f)}
-          aria-pressed={flipped}
-        >
-          <FlipIcon />
-          {flipped ? 'Turn back to the front' : "There's a note on the back — turn it over"}
-        </button>
-      )}
-
-      {/* Print-only copy: the on-screen card is scaled by a ResizeObserver,
-          which does not re-measure for the print layout, so printing renders
-          these copies at a fixed mailable size (see the print CSS). A
-          two-sided card prints as two pages, front then back. */}
-      <div
-        className="print-area"
-        style={{ '--card-w': w, '--card-h': h } as CSSProperties}
-        aria-hidden="true"
-      >
-        <div className="print-sheet">
-          <div className="print-scale-box">
-            <div className="print-scale-inner" style={{ width: w, height: h }}>
-              <Card data={card} side="front" />
-            </div>
-          </div>
-        </div>
+      <div className="view-actions">
         {twoSided && (
-          <div className="print-sheet">
-            <div className="print-scale-box">
-              <div className="print-scale-inner" style={{ width: w, height: h }}>
-                <Card data={card} side="back" />
-              </div>
-            </div>
-          </div>
+          <button
+            className="flip-hint"
+            onClick={() => setFlipped((f) => !f)}
+            aria-pressed={flipped}
+          >
+            <FlipIcon />
+            {flipped ? 'Turn back to the front' : "There's a note on the back — turn it over"}
+          </button>
         )}
+        <PrintButton />
       </div>
+
+      <PrintArea card={card} />
     </div>
   )
 }

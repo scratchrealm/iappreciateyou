@@ -534,12 +534,52 @@ button {
 
 /* ---------- Print ---------- */
 
-@page {
-  margin: 0.5in;
-}
-
 .print-area {
   display: none;
+}
+
+.view-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.print-btn,
+.secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #d6d0c6;
+  border-radius: 999px;
+  background: #fff;
+  color: #57524b;
+  padding: 9px 18px;
+  font-size: 0.92rem;
+  box-shadow: 0 1px 5px rgba(60, 50, 40, 0.08);
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.print-btn:hover,
+.secondary-btn:hover {
+  color: #a14f2f;
+  border-color: #c58a70;
+  transform: translateY(-1px);
+}
+
+.secondary-btn {
+  border-radius: 8px;
+  align-self: flex-start;
+}
+
+.print-icon {
+  flex: 0 0 auto;
+}
+
+@page {
+  margin: 0.5in;
 }
 
 @media print {
@@ -551,29 +591,31 @@ button {
   }
 
   body,
-  .view {
+  .page {
     background: #fff;
   }
 
-  .view {
+  /* Every page prints the same way: only the print copy of the card, laid out
+     on its own sheets, with the interactive page around it hidden. */
+  .page {
     display: block;
+    max-width: none;
+    margin: 0;
     padding: 0;
-    /* Undo the on-screen viewport box, which would otherwise clip the sheets
-       below to a single page. */
     height: auto;
     overflow: visible;
   }
 
-  .view-card,
-  .flip-hint {
+  .page > * {
     display: none;
   }
 
-  .print-area {
+  .page > .print-area {
     display: block;
     /* 0.84 puts the card's 800px long side at 7in (800px = 8.33in at
-       96dpi), so it prints as a 7in x 4.9in card — standard 5x7 greeting
-       card territory, fits an A7 envelope and any paper orientation. */
+       96dpi), so it prints as a 7in x 4.9in card - standard 5x7 greeting
+       card territory, big enough to hand to someone and small enough for an
+       A7 envelope, in either orientation. */
     --print-scale: 0.84;
   }
 
@@ -594,6 +636,13 @@ button {
     break-after: auto;
   }
 
+  .print-piece {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3in;
+  }
+
   .print-scale-box {
     width: calc(var(--card-w) * var(--print-scale) * 1px);
     height: calc(var(--card-h) * var(--print-scale) * 1px);
@@ -605,6 +654,14 @@ button {
   .print-scale-inner {
     transform: scale(var(--print-scale));
     transform-origin: top left;
+  }
+
+  .print-label {
+    margin: 0;
+    font-size: 9pt;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #a8a196;
   }
 
   .card {
