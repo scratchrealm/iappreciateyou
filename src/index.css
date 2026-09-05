@@ -534,8 +534,15 @@ button {
 
 /* ---------- Print ---------- */
 
+/* The print copy stays laid out, just parked off-screen. It must not be
+   display:none: a card fits its own text by measuring it, and a card with no
+   layout measures as zero, so it would print at the largest font size no
+   matter how much was written. Negative offsets do not create scrollable
+   overflow, so the parked copy is invisible and out of the way. */
 .print-area {
-  display: none;
+  position: absolute;
+  top: -30000px;
+  left: -30000px;
 }
 
 .view-actions {
@@ -611,6 +618,7 @@ button {
   }
 
   .page > .print-area {
+    position: static;
     display: block;
     /* 0.84 puts the card's 800px long side at 7in (800px = 8.33in at
        96dpi), so it prints as a 7in x 4.9in card - standard 5x7 greeting
